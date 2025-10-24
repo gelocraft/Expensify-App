@@ -85,7 +85,7 @@ const onyxKeysToRemove: Array<ValueOf<typeof ONYXKEYS>> = [
     ONYXKEYS.ONFIDO_APPLICANT_ID,
 ];
 
-const keysToMask = [
+const keysToMask = new Set([
     'addressCity',
     'addressName',
     'addressStreet',
@@ -128,7 +128,7 @@ const keysToMask = [
     'validateCode',
     'zip',
     'zipCode',
-];
+]);
 
 const amountKeysToRandomize = ['amount', 'modifiedAmount', 'originalAmount', 'total', 'unheldTotal', 'unheldNonReimbursableTotal', 'nonReimbursableTotal'];
 
@@ -312,6 +312,9 @@ const maskFragileData = (data: OnyxState | unknown[] | null, emailMap: Map<strin
         } else if (parentKey && nodesToFullyMask.includes(parentKey) && typeof value === 'object') {
             maskedData[destinationKey] = maskFragileData(value as OnyxState, emailMap, parentKey);
         } else if (keysToMask.includes(sourceKey)) {
+        const value = data[propertyName];
+
+        if (keysToMask.has(key)) {
             if (Array.isArray(value)) {
                 maskedData[destinationKey] = value.map(() => MASKING_PATTERN);
             } else if (typeof value === 'object') {
