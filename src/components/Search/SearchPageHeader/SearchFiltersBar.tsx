@@ -612,14 +612,14 @@ function SearchFiltersBar({
 
     const hiddenSelectedFilters = useMemo(() => {
         const advancedSearchFiltersKeys = typeFiltersKeys.flat();
-        const exposedFiltersKeys = filters.flatMap((filter) => {
+        const exposedFiltersKeys = new Set(filters.flatMap((filter) => {
             const dateFilterKey = DATE_FILTER_KEYS.find((key) => filter.filterKey.startsWith(key));
             if (dateFilterKey) {
                 return dateFilterKey;
             }
             return filter.filterKey;
-        });
-        const hiddenFilters = advancedSearchFiltersKeys.filter((key) => !exposedFiltersKeys.includes(key as SearchAdvancedFiltersKey));
+        }));
+        const hiddenFilters = advancedSearchFiltersKeys.filter((key) => !exposedFiltersKeys.has(key as SearchAdvancedFiltersKey));
         return hiddenFilters.filter((key) => {
             const dateFilterKey = DATE_FILTER_KEYS.find((dateKey) => key === dateKey);
             if (dateFilterKey) {

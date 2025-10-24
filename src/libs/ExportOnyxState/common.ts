@@ -87,7 +87,7 @@ const onyxKeysToRemove: Array<ValueOf<typeof ONYXKEYS>> = [
     ONYXKEYS.ONFIDO_APPLICANT_ID,
 ];
 
-const keysToMask = [
+const keysToMask = new Set([
     'addressCity',
     'addressName',
     'addressStreet',
@@ -128,7 +128,7 @@ const keysToMask = [
     'validateCode',
     'zip',
     'zipCode',
-];
+]);
 
 const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 
@@ -249,7 +249,7 @@ const maskFragileData = (data: OnyxState | unknown[] | null, parentKey?: string)
 
         const value = data[propertyName];
 
-        if (keysToMask.includes(key)) {
+        if (keysToMask.has(key)) {
             if (Array.isArray(value)) {
                 maskedData[key] = value.map(() => MASKING_PATTERN);
             } else {
