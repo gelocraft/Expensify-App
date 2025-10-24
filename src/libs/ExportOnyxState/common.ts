@@ -6,7 +6,7 @@ import type OnyxState from '@src/types/onyx/OnyxState';
 import type {MaskOnyxState} from './types';
 
 const MASKING_PATTERN = '***';
-const keysToMask = [
+const keysToMask = new Set([
     'addressCity',
     'addressName',
     'addressStreet',
@@ -47,7 +47,7 @@ const keysToMask = [
     'validateCode',
     'zip',
     'zipCode',
-];
+]);
 
 const onyxKeysToRemove: Array<ValueOf<typeof ONYXKEYS>> = [ONYXKEYS.NVP_PRIVATE_PUSH_NOTIFICATION_ID];
 
@@ -98,11 +98,11 @@ function replaceEmailInString(text: string, emailReplacement: string) {
 }
 
 const maskSessionDetails = (session: Session): Session => {
-    const allowList = ['email', 'accountID', 'loading', 'creationDate', 'errors'];
+    const allowList = new Set(['email', 'accountID', 'loading', 'creationDate', 'errors']);
     const maskedData: OnyxState = {};
 
     Object.keys(session).forEach((key) => {
-        if (allowList.includes(key)) {
+        if (allowList.has(key)) {
             maskedData[key] = session[key as keyof Session];
             return;
         }
@@ -112,11 +112,11 @@ const maskSessionDetails = (session: Session): Session => {
 };
 
 const maskCredentials = (credentials: Credentials): Credentials => {
-    const allowList = ['login', 'accountID'];
+    const allowList = new Set(['login', 'accountID']);
     const maskedData: OnyxState = {};
 
     Object.keys(credentials).forEach((key) => {
-        if (allowList.includes(key)) {
+        if (allowList.has(key)) {
             maskedData[key] = credentials[key as keyof Credentials];
             return;
         }
@@ -168,7 +168,7 @@ const maskFragileData = (data: OnyxState | unknown[] | null, parentKey?: string)
 
         const value = data[propertyName];
 
-        if (keysToMask.includes(key)) {
+        if (keysToMask.has(key)) {
             if (Array.isArray(value)) {
                 maskedData[key] = value.map(() => MASKING_PATTERN);
             } else {
