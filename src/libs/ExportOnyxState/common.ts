@@ -75,6 +75,7 @@ const ONYX_KEY_EXPORT_RULES: Record<string, ExportRule> = {
     },
 };
 
+// eslint-disable-next-line unicorn/prefer-set-has
 const onyxKeysToRemove: Array<ValueOf<typeof ONYXKEYS>> = [
     ONYXKEYS.NVP_PRIVATE_PUSH_NOTIFICATION_ID,
     ONYXKEYS.NVP_PRIVATE_STRIPE_CUSTOMER_ID,
@@ -85,7 +86,7 @@ const onyxKeysToRemove: Array<ValueOf<typeof ONYXKEYS>> = [
     ONYXKEYS.ONFIDO_APPLICANT_ID,
 ];
 
-const keysToMask = [
+const keysToMask = new Set([
     'addressCity',
     'addressName',
     'addressStreet',
@@ -128,11 +129,11 @@ const keysToMask = [
     'validateCode',
     'zip',
     'zipCode',
-];
+]);
 
-const amountKeysToRandomize = ['amount', 'modifiedAmount', 'originalAmount', 'total', 'unheldTotal', 'unheldNonReimbursableTotal', 'nonReimbursableTotal'];
+const amountKeysToRandomize = new Set(['amount', 'modifiedAmount', 'originalAmount', 'total', 'unheldTotal', 'unheldNonReimbursableTotal', 'nonReimbursableTotal']);
 
-const nodesToFullyMask = ['reservationList'];
+const nodesToFullyMask = new Set(['reservationList']);
 
 const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 
@@ -295,7 +296,7 @@ const maskFragileData = (data: OnyxState | unknown[] | null, emailMap: Map<strin
             maskedData[destinationKey] = maskFragileData(value as OnyxState, emailMap, sourceKey);
         } else if (sourceKey.startsWith(ONYXKEYS.COLLECTION.TRANSACTION) && typeof value === 'object') {
             maskedData[destinationKey] = maskFragileData(value as OnyxState, emailMap, sourceKey);
-        } else if (amountKeysToRandomize.includes(sourceKey) && typeof value === 'number') {
+        } else if (amountKeysToRandomize.has(sourceKey) && typeof value === 'number') {
             maskedData[destinationKey] = randomizeAmount(value);
             // Handle expensify_text_title masking
         } else if (parentKey === 'expensify_text_title' && sourceKey === 'value' && typeof value === 'string') {
@@ -303,15 +304,15 @@ const maskFragileData = (data: OnyxState | unknown[] | null, emailMap: Map<strin
         } else if (sourceKey === 'expensify_text_title' && typeof value === 'object') {
             maskedData[destinationKey] = maskFragileData(value as OnyxState, emailMap, 'expensify_text_title');
             // Handle nodes that need full masking
-        } else if (nodesToFullyMask.includes(sourceKey) && typeof value === 'object') {
+        } else if (nodesToFullyMask.has(sourceKey) && typeof value === 'object') {
             maskedData[destinationKey] = maskFragileData(value as OnyxState, emailMap, sourceKey);
-        } else if (parentKey && nodesToFullyMask.includes(parentKey) && typeof value === 'string' && isDateValue(value)) {
+        } else if (parentKey && nodesToFullyMask.has(parentKey) && typeof value === 'string' && isDateValue(value)) {
             maskedData[destinationKey] = getCurrentDate();
-        } else if (parentKey && nodesToFullyMask.includes(parentKey) && typeof value === 'string') {
+        } else if (parentKey && nodesToFullyMask.has(parentKey) && typeof value === 'string') {
             maskedData[destinationKey] = maskValuePreservingLength(value);
-        } else if (parentKey && nodesToFullyMask.includes(parentKey) && typeof value === 'object') {
+        } else if (parentKey && nodesToFullyMask.has(parentKey) && typeof value === 'object') {
             maskedData[destinationKey] = maskFragileData(value as OnyxState, emailMap, parentKey);
-        } else if (keysToMask.includes(sourceKey)) {
+        } else if (keysToMask.has(sourceKey)) {
             if (Array.isArray(value)) {
                 maskedData[destinationKey] = value.map(() => MASKING_PATTERN);
             } else if (typeof value === 'object') {
