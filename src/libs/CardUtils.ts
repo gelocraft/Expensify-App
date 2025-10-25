@@ -529,7 +529,7 @@ function isSelectedFeedExpired(directFeed: DirectCardFeedData | undefined): bool
 /** Returns list of cards which can be assigned */
 function getFilteredCardList(list: WorkspaceCardsList | undefined, directFeed: DirectCardFeedData | undefined, workspaceCardFeeds: OnyxCollection<WorkspaceCardsList>) {
     const {cardList: customFeedCardsToAssign, ...cards} = list ?? {};
-    const assignedCards = Object.values(cards).map((card) => card.cardName);
+    const assignedCards = new Set(Object.values(cards).map((card) => card.cardName));
 
     // Get cards assigned across all workspaces
     const allWorkspaceAssignedCards = new Set<string>();
@@ -547,11 +547,11 @@ function getFilteredCardList(list: WorkspaceCardsList | undefined, directFeed: D
     });
 
     if (directFeed) {
-        const unassignedDirectFeedCards = directFeed.accountList.filter((cardNumber) => !assignedCards.includes(cardNumber) && !allWorkspaceAssignedCards.has(cardNumber));
+        const unassignedDirectFeedCards = directFeed.accountList.filter((cardNumber) => !assignedCards.has(cardNumber) && !allWorkspaceAssignedCards.has(cardNumber));
         return Object.fromEntries(unassignedDirectFeedCards.map((cardNumber) => [cardNumber, cardNumber]));
     }
 
-    return Object.fromEntries(Object.entries(customFeedCardsToAssign ?? {}).filter(([cardNumber]) => !assignedCards.includes(cardNumber) && !allWorkspaceAssignedCards.has(cardNumber)));
+    return Object.fromEntries(Object.entries(customFeedCardsToAssign ?? {}).filter(([cardNumber]) => !assignedCards.has(cardNumber) && !allWorkspaceAssignedCards.has(cardNumber)));
 }
 
 function hasOnlyOneCardToAssign(list: FilteredCardList) {
