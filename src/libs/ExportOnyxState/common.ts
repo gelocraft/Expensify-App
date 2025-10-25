@@ -86,7 +86,8 @@ const onyxKeysToRemove: Array<ValueOf<typeof ONYXKEYS>> = [
     ONYXKEYS.ONFIDO_APPLICANT_ID,
 ];
 
-const keysToMask = new Set([
+// eslint-disable-next-line unicorn/prefer-set-has
+const keysToMask = [
     'addressCity',
     'addressName',
     'addressStreet',
@@ -129,10 +130,12 @@ const keysToMask = new Set([
     'validateCode',
     'zip',
     'zipCode',
-]);
+];
 
+// eslint-disable-next-line unicorn/prefer-set-has
 const amountKeysToRandomize = ['amount', 'modifiedAmount', 'originalAmount', 'total', 'unheldTotal', 'unheldNonReimbursableTotal', 'nonReimbursableTotal'];
 
+// eslint-disable-next-line unicorn/prefer-set-has
 const nodesToFullyMask = ['reservationList'];
 
 const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
@@ -313,9 +316,6 @@ const maskFragileData = (data: OnyxState | unknown[] | null, emailMap: Map<strin
         } else if (parentKey && nodesToFullyMask.includes(parentKey) && typeof value === 'object') {
             maskedData[destinationKey] = maskFragileData(value as OnyxState, emailMap, parentKey);
         } else if (keysToMask.includes(sourceKey)) {
-        const value = data[propertyName];
-
-        if (keysToMask.has(key)) {
             if (Array.isArray(value)) {
                 maskedData[destinationKey] = value.map(() => MASKING_PATTERN);
             } else if (typeof value === 'object') {
