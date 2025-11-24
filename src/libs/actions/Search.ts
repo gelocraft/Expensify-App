@@ -431,6 +431,7 @@ function updateSearchResultsWithTransactionThreadReportID(hash: number, transact
 
 function holdMoneyRequestOnSearch(hash: number, transactionIDList: string[], comment: string, allTransactions: OnyxCollection<Transaction>, allReportActions: OnyxCollection<ReportActions>) {
     const {optimisticData, finallyData} = getOnyxLoadingData(hash);
+    // eslint-disable-next-line unicorn/no-array-for-each
     transactionIDList.forEach((transactionID) => {
         const transaction = allTransactions?.[`${ONYXKEYS.COLLECTION.TRANSACTION}${transactionID}`];
         const reportActions = allReportActions?.[`${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${transaction?.reportID}`] ?? {};
@@ -738,7 +739,9 @@ function deleteMoneyRequestOnSearch(
     });
 
     if (allSnapshotKeys?.length && allSnapshotKeys.length > 0) {
+        // eslint-disable-next-line unicorn/no-array-for-each
         transactionIDList.forEach((transactionID) => {
+            // eslint-disable-next-line unicorn/no-array-for-each
             allSnapshotKeys.forEach((key) => {
                 optimisticData.push({
                     onyxMethod: Onyx.METHOD.MERGE,
@@ -806,6 +809,7 @@ type Params = Record<string, ExportSearchItemsToCSVParams>;
 
 function exportSearchItemsToCSV({query, jsonQuery, reportIDList, transactionIDList}: ExportSearchItemsToCSVParams, onDownloadFailed: () => void) {
     const reportIDListParams: string[] = [];
+    // eslint-disable-next-line unicorn/no-array-for-each
     reportIDList.forEach((reportID) => {
         const allReportTransactions = getReportTransactions(reportID).filter((transaction) => transaction.pendingAction !== CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE);
         const allTransactionIDs = allReportTransactions.map((transaction) => transaction.transactionID);
@@ -824,6 +828,7 @@ function exportSearchItemsToCSV({query, jsonQuery, reportIDList, transactionIDLi
     }) as Params;
 
     const formData = new FormData();
+    // eslint-disable-next-line unicorn/no-array-for-each
     Object.entries(finalParameters).forEach(([key, value]) => {
         if (Array.isArray(value)) {
             formData.append(key, value.join(','));
@@ -933,6 +938,7 @@ function clearAdvancedFilters() {
     const values: Partial<Nullable<SearchAdvancedFiltersForm>> = {};
     Object.values(FILTER_KEYS)
         .filter((key) => key !== FILTER_KEYS.GROUP_BY)
+        // eslint-disable-next-line unicorn/no-array-for-each
         .forEach((key) => {
             if (key === FILTER_KEYS.TYPE) {
                 values[key] = CONST.SEARCH.DATA_TYPES.EXPENSE;

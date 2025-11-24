@@ -8886,6 +8886,7 @@ function deleteMoneyRequest(params: DeleteMoneyRequestInputParams): Route | unde
     ];
 
     if (allSnapshotKeys?.length && allSnapshotKeys.length > 0) {
+        // eslint-disable-next-line unicorn/no-array-for-each
         allSnapshotKeys.forEach((key) => {
             optimisticData.push({
                 onyxMethod: Onyx.METHOD.MERGE,
